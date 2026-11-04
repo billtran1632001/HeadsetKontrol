@@ -2,22 +2,27 @@
 build
 build/
 
-# QtCreator
+# Qt Creator
 *.txt.user
+.qtcreator/
 
 # Clang
-.cache
+.cache/
 .clangd
+compile_commands.json
 
 # qmlls
-*.qmlls.ini
+**/*.qmlls.ini
 
 # Kdevelop
 *.kdev4
 *.kate-swp
 
+# Kate
+/.kateproject.build
+
 # KDE stuff
 .clang-format
 
 # VSCode
-.vscode
+.vscode/

@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: CC0-1.0
+# SPDX-FileCopyrightText: 2026 Trần Nam Tuấn <billtran1632001@gmail.com>
+[Desktop Entry]
+Name=HeadsetKontrol
+Comment=Control your headsets with HeadsetControl
+Keywords=headsetkontrol;headsetcontrol;headset
+Exec=headsetkontrol
+Icon=headsetkontrol
+Type=Application
+Terminal=false
+StartupNotify=true
+Categories=Qt;KDE;Utility;System;Settings;HardwareSettings;Monitor
+X-DBUS-ServiceName=vn.name.billtran.headsetkontrol
+X-KDE-SubstituteUID=false

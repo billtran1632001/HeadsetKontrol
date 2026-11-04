@@ -1,0 +1,6 @@
+[submodule "3rdparty/HeadsetControl"]
+	path = 3rdparty/HeadsetControl/HeadsetControl
+	url = https://github.com/Sapd/HeadsetControl.git
+[submodule "3rdparty/headsetcontrol/HeadsetControl"]
+	path = 3rdparty/headsetcontrol/HeadsetControl
+	url = https://github.com/Sapd/HeadsetControl

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SPDX-License-Identifier: BSD-3-Clause
+  SPDX-FileCopyrightText: 2026 Trần Nam Tuấn <tuantran1632001@gmail.com>
+ -->
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+    <kcfgfile arg="true">
+        <parameter name="deviceId" type="String"/>
+    </kcfgfile>
+
+    <group name="$(deviceId)" parentGroupName="Devices">
+        <entry name="light" key="Light" type="Bool">
+        </entry>
+
+        <entry name="voicePrompt" key="VoicePrompt" type="Bool">
+        </entry>
+
+        <entry name="sidetone" key="Sidetone" type="UInt">
+        </entry>
+
+        <!-- This is suppose to be float list -->
+        <entry name="equalizer" key="Equalizer" type="StringList">
+        </entry>
+
+        <entry name="equalizerPreset" key="EqualizerPreset" type="UInt">
+        </entry>
+
+        <entry name="rotateToMute" key="RotateToMute" type="Bool">
+        </entry>
+
+        <entry name="microphoneMuteLedBrightness" key="MicrophoneMuteLEDBrightness" type="Int">
+        </entry>
+    </group>
+</kcfg>
