@@ -1,0 +1,6 @@
+File=HKDeviceConfig.kcfg
+HeaderExtension=hpp
+ClassName=HKDeviceConfig
+Mutators=true
+DefaultValueGetters=true
+GenerateProperties=true

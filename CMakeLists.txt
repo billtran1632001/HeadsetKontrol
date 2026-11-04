@@ -1,81 +1,139 @@
-cmake_minimum_required(VERSION 3.20)
+# SPDX-FileCopyrightText: 2026 Trần Nam Tuấn <billtran1632001@gmail.com>
+# SPDX-License-Identifier: BSD-3-Clause
 
-# Project info
-project(HeadsetKontrol VERSION 2.0.4 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.28)
 
-set(QT6_MIN_VERSION "6.5.0")
-set(KF6_MIN_VERSION "6.0.0")
-set(KIRIGAMI_ADDONS_MIN_VERSION "1.3.0")
+project(HeadsetKontrol
+    VERSION 3.0.0
+    DESCRIPTION "Control your headsets with HeadsetControl."
+    HOMEPAGE_URL "https://gitlab.com/billtran1632001/headsetkontrol"
+    LANGUAGES CXX
+)
 
-# Standard KDE project config
-find_package(ECM 6.0.0 REQUIRED NO_MODULE)
-set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+include(FeatureSummary)
 
-include(KDEInstallDirs)
+option(USE_SOLID "Use KDE Solid to detect when a device is added or removed. This help prevents constant polling of HIDAPI." ON)
+
+set(QT6_MIN_VERSION 6.8.0)
+set(KF6_MIN_VERSION 6.24.0)
+set(KIRIGAMI_ADDONS_MIN_VERSION 1.15.0)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(ECM "${KF6_MIN_VERSION}" REQUIRED NO_MODULE)
+list(PREPEND CMAKE_MODULE_PATH "${ECM_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+include(KDEInstallDirs6)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
-include(ECMSetupVersion)
+include(KDEClangFormat)
+include(KDEGitCommitHooks)
+
+include(ECMDeprecationSettings)
 include(ECMFindQmlModule)
-include(ECMQmlModule)
-include(ECMPoQmTools)
 include(ECMInstallIcons)
+include(ECMQmlModule)
+include(ECMQtDeclareLoggingCategory)
+include(ECMSetupVersion)
 
-ecm_setup_version(${PROJECT_VERSION}
-    VARIABLE_PREFIX HEADSETKONTROL
-    VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/src/headsetkontrolversion.h"
-)
-
-find_package(Qt6 ${QT6_MIN_VERSION} REQUIRED COMPONENTS
-    Core
-    Gui
-    Quick
+find_package(Qt6 "${QT6_MIN_VERSION}" REQUIRED COMPONENTS
     Qml
-    QuickControls2
+    Quick
     Widgets
-    DBus
 )
 
-find_package(KF6 ${KF6_MIN_VERSION} REQUIRED COMPONENTS
-    Kirigami
-    I18n
-    CoreAddons
+find_package(KF6 "${KF6_MIN_VERSION}" REQUIRED COMPONENTS
     Config
-    DBusAddons
-    Notifications
-    IconThemes
-    StatusNotifierItem
+    CoreAddons
+    Crash
+    I18n
+    Kirigami
     NotifyConfig
 )
 
-find_package(KF6 1.3.0 REQUIRED COMPONENTS KirigamiAddons)
+if(USE_SOLID)
+    find_package(KF6Solid "${KF6_MIN_VERSION}" REQUIRED COMPONENTS)
+    set_package_properties(KF6Solid
+        PROPERTIES
+            TYPE REQUIRED
+            PURPOSE "Detect when a device is added or removed. This help prevents constant polling of HIDAPI."
+    )
+endif()
 
-qt_policy(SET QTP0001 NEW)
+find_package(KF6KirigamiAddons ${KIRIGAMI_ADDONS_MIN_VERSION} REQUIRED)
+set_package_properties(KF6KirigamiAddons
+    PROPERTIES
+        TYPE REQUIRED
+        PURPOSE "Required application components and runtime dependency."
+)
 
-ecm_find_qmlmodule(org.kde.kirigami ${KF6_MIN_VERSION})
-ecm_find_qmlmodule(org.kde.kirigamiaddons.settings ${KIRIGAMI_ADDONS_MIN_VERSION})
-ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard ${KIRIGAMI_ADDONS_MIN_VERSION})
-ecm_find_qmlmodule(org.kde.kirigamiaddons.statefulapp ${KIRIGAMI_ADDONS_MIN_VERSION})
+ecm_set_disabled_deprecation_versions(
+    QT "${QT6_MIN_VERSION}"
+    KF "${KF6_MIN_VERSION}"
+)
 
-# Subdir to sources
-add_subdirectory(src)
+ecm_find_qmlmodule(org.kde.ki18n "${KF6_MIN_VERSION}" REQUIRED)
+ecm_find_qmlmodule(org.kde.kirigami "${KF6_MIN_VERSION}" REQUIRED)
+ecm_find_qmlmodule(org.kde.kirigami.delegates "${KF6_MIN_VERSION}" REQUIRED)
+ecm_find_qmlmodule(org.kde.kirigami.platform "${KF6_MIN_VERSION}" REQUIRED)
+ecm_find_qmlmodule(org.kde.kirigamiaddons.actions "${KIRIGAMI_ADDONS_MIN_VERSION}" REQUIRED)
+ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard "${KIRIGAMI_ADDONS_MIN_VERSION}" REQUIRED)
+ecm_find_qmlmodule(org.kde.kirigamiaddons.settings "${KIRIGAMI_ADDONS_MIN_VERSION}" REQUIRED)
 
-## Source formating
-include(KDEClangFormat)
-file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES *.cpp *.h *.hpp *.c)
-kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
+add_subdirectory(3rdparty)
 
-include(KDEGitCommitHooks)
-kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
+add_subdirectory(app)
 
-include(FeatureSummary)
 feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
-# Build translation
-add_subdirectory(translation)
+install(FILES vn.name.billtran.headsetkontrol.desktop       DESTINATION "${KDE_INSTALL_APPDIR}")
+install(FILES vn.name.billtran.headsetkontrol.metainfo.xml  DESTINATION "${KDE_INSTALL_METAINFODIR}")
 
-# Install rules
-install(PROGRAMS headsetkontrol.desktop DESTINATION ${KDE_INSTALL_APPDIR})
-install(FILES headsetkontrol.notifyrc DESTINATION ${KDE_INSTALL_KNOTIFYRCDIR})
+ecm_install_icons(ICONS
+        icons/sc-apps-headsetkontrol.svg
+        icons/sc-status-headsetkontrol-battery-000-charging.svg
+        icons/sc-status-headsetkontrol-battery-000.svg
+        icons/sc-status-headsetkontrol-battery-010-charging.svg
+        icons/sc-status-headsetkontrol-battery-010.svg
+        icons/sc-status-headsetkontrol-battery-020-charging.svg
+        icons/sc-status-headsetkontrol-battery-020.svg
+        icons/sc-status-headsetkontrol-battery-030-charging.svg
+        icons/sc-status-headsetkontrol-battery-030.svg
+        icons/sc-status-headsetkontrol-battery-040-charging.svg
+        icons/sc-status-headsetkontrol-battery-040.svg
+        icons/sc-status-headsetkontrol-battery-050-charging.svg
+        icons/sc-status-headsetkontrol-battery-050.svg
+        icons/sc-status-headsetkontrol-battery-060-charging.svg
+        icons/sc-status-headsetkontrol-battery-060.svg
+        icons/sc-status-headsetkontrol-battery-070-charging.svg
+        icons/sc-status-headsetkontrol-battery-070.svg
+        icons/sc-status-headsetkontrol-battery-080-charging.svg
+        icons/sc-status-headsetkontrol-battery-080.svg
+        icons/sc-status-headsetkontrol-battery-090-charging.svg
+        icons/sc-status-headsetkontrol-battery-090.svg
+        icons/sc-status-headsetkontrol-battery-100-charging.svg
+        icons/sc-status-headsetkontrol-battery-100.svg
+    DESTINATION "${KDE_INSTALL_ICONDIR}"
+)
 
-file(GLOB_RECURSE ICON_FILES *.svg)
-ecm_install_icons(ICONS ${ICON_FILES} DESTINATION ${KDE_INSTALL_ICONDIR})
+ecm_qt_install_logging_categories(
+    EXPORT HK_LOGGING
+    FILE vn.name.billtran.headsetkontrol.categories
+    DESTINATION "${KDE_INSTALL_LOGGINGCATEGORIESDIR}"
+)
+
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
+
+file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES
+    3rdparty/HeadsetControl/generate-udev/*.cpp
+    3rdparty/HeadsetControl/generate-udev/*.hpp
+    3rdparty/HeadsetControl/module/*.cpp
+    3rdparty/HeadsetControl/module/*.cppm
+    app/*.cpp
+    app/*.cppm
+    app/*.hpp
+)
+kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
+kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
