@@ -75,14 +75,9 @@ KirigamiActions.StatefulWindow {
     }
 
     pageStack {
-
-
         initialPage: HKDevicesListPage {
             onSelectedDeviceChanged: {
                 if (selectedDevice) {
-                    appWindow.pageStack.push(devicePageComponent.createObject(null, {
-                        device: selectedDevice
-                    }));
                     appWindow.pageStack.push(devicePageComponent.createObject(null, {
                         device: selectedDevice
                     }));

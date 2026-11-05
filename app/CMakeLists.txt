@@ -65,17 +65,25 @@ ecm_target_qml_sources(headsetkontrol SOURCES
     qml/HKDeviceControlPage.qml
 )
 
-add_dependencies(headsetkontrol generate-udev)
-get_filename_component(_udev_rules_name "${HeadsetControl_UDEV_RULES}" NAME)
-set_source_files_properties("${HeadsetControl_UDEV_RULES}" PROPERTIES
-    QT_RESOURCE_ALIAS "${_udev_rules_name}"
-)
+if(LINUX AND USE_VENDORED_HEADSETCONTROL)
+    add_dependencies(headsetkontrol generate-udev)
+endif()
 
-qt_add_resources(headsetkontrol resources
-    PREFIX /headsetkontrol
-    FILES
-        "${HeadsetControl_UDEV_RULES}"
-)
+if(LINUX AND HeadsetControl_UDEV_RULES AND EXISTS "${HeadsetControl_UDEV_RULES}")
+    set_source_files_properties("${HeadsetControl_UDEV_RULES}" PROPERTIES
+        QT_RESOURCE_ALIAS "80-headsetkontrol-headsets.rules"
+    )
+
+    qt_add_resources(headsetkontrol resources
+        PREFIX /headsetkontrol
+        FILES
+            "${HeadsetControl_UDEV_RULES}"
+    )
+
+    target_compile_definitions(headsetkontrol PRIVATE
+        HK_UDEV_RULES=":/headsetkontrol/80-headsetkontrol-headsets.rules"
+    )
+endif()
 
 target_include_directories(headsetkontrol PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
@@ -83,8 +91,11 @@ target_include_directories(headsetkontrol PRIVATE
 )
 
 target_compile_definitions(headsetkontrol PRIVATE
-    $<$<BOOL:"${USE_SOLID}">:HK_USE_SOLID>
+    $<$<BOOL:${USE_SOLID}>:HK_USE_SOLID>
     $<$<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>:QT_NO_DEBUG_OUTPUT>
+    $<$<BOOL:${BUILD_FLATPAK}>:HK_FLATPAK>
+    $<$<BOOL:${BUILD_APPIMAGE}>:HK_APPIMAGE>
+    $<$<BOOL:${HK_CONTAINED}>:HK_CONTAINED>
 )
 
 target_link_libraries(headsetkontrol PRIVATE
@@ -98,7 +109,7 @@ target_link_libraries(headsetkontrol PRIVATE
     KF6::I18n
     KF6::I18nQml
     KF6::NotifyConfig
-    $<$<BOOL:"${USE_SOLID}">:KF6::Solid>
+    $<$<BOOL:${USE_SOLID}>:KF6::Solid>
 
     KirigamiApp
     KirigamiAddonsStatefulApp

@@ -115,13 +115,16 @@ int main(int argc, char *argv[])
     engine.setInitialProperties({{"visible"_L1, !startMinimized}});
 
     // BUG: https://bugs.kde.org/show_bug.cgi?id=527573
-    // if (!KirigamiAppDefaults::load("vn.name.billtran.headsetkontrol", "HKAppWindow", &engine)) {
-    //     return EXIT_FAILURE;
-    // }
+#if KIRIGAMIAPP_VERSION >= QT_VERSION_CHECK(1, 16, 0)
+    if (!KirigamiAppDefaults::load("vn.name.billtran.headsetkontrol", "HKAppWindow", &engine)) {
+        return EXIT_FAILURE;
+    }
+#else
     engine.loadFromModule("vn.name.billtran.headsetkontrol", "HKAppWindow");
     if (engine.rootObjects().isEmpty()) {
         return EXIT_FAILURE;
     }
+#endif
 
     return app.exec();
 }

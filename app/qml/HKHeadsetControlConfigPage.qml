@@ -1,15 +1,113 @@
 // SPDX-FileCopyrightText: 2026 Trần Nam Tuấn <billtran1632001@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-later
 
+pragma ComponentBehavior: Bound
+
 import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls as Controls
 
 import org.kde.ki18n
 import org.kde.kirigami as Kirigami
+import org.kde.kirigami.dialogs as KirigamiDialogs
+import org.kde.kirigami.layouts as KirigamiLayouts
 import org.kde.kirigami.platform as KirigamiPlatform
 import org.kde.kirigamiaddons.formcard as FormCard
 
 FormCard.FormCardPage {
-    id: root
+    id: hcConfigPage
+
+    Loader {
+        id: supportedDevicesDialogLoader
+
+        active: false
+
+        sourceComponent: KirigamiDialogs.Dialog {
+            title: KI18n.i18nc("@title:window", "Supported devices")
+            parent: Controls.Overlay.overlay
+
+            onClosed: supportedDevicesDialogLoader.active = false
+
+            preferredWidth: KirigamiPlatform.Units.gridUnit * 25
+
+            KirigamiLayouts.Padding {
+                padding: KirigamiPlatform.Units.largeSpacing
+
+                contentItem: Controls.TextArea {
+                    readOnly: true
+                    text: HK.sortStringLocaleAware(HKHeadsetControl.supportedDevices).join('\n')
+                }
+            }
+        }
+
+        onLoaded: {
+            if (status === Loader.Ready) {
+                (item as KirigamiDialogs.Dialog).open();
+            }
+        }
+    }
+
+    Loader {
+        id: udevRulesDialogLoader
+
+        active: false
+
+        sourceComponent: KirigamiDialogs.Dialog {
+            id: dialog
+
+            title: KI18n.i18nc("@title:window", "UDEV Rules")
+            parent: Controls.Overlay.overlay
+            onClosed: udevRulesDialogLoader.active = false
+
+            customFooterActions: [
+                Controls.Action {
+                    readonly property Kirigami.AbstractApplicationWindow window: HK.findWindow(hcConfigPage) as Kirigami.AbstractApplicationWindow
+
+                    icon.name: "edit-copy"
+                    text: qsTr("Copy")
+                    onTriggered: {
+                        textArea.selectAll();
+                        textArea.copy();
+                        textArea.deselect();
+                        window?.showPassiveNotification(KI18n.i18nc("@info", "UDEV rules copied to clipboard"));
+                    }
+                }
+            ]
+
+            KirigamiLayouts.Padding {
+                padding: KirigamiPlatform.Units.largeSpacing
+
+                contentItem: ColumnLayout {
+                    spacing: KirigamiPlatform.Units.mediumSpacing
+
+                    Controls.Label {
+                        Layout.fillWidth: true
+
+                        text: KI18n.i18nc("@info:usagetip", "Copy the content to your system <a href=\"https://wiki.archlinux.org/title/Udev#Introduction_to_udev_rules\">UDEV</a> rules directory. Then <a href=\"https://wiki.archlinux.org/title/Udev#Loading_new_rules\">reload the rules</a> for them to take effect.")
+                        wrapMode: Text.WordWrap
+
+                        onLinkActivated: link => Qt.openUrlExternally(link)
+                    }
+
+                    Controls.TextArea {
+                        id: textArea
+
+                        Layout.fillWidth: true
+
+                        readOnly: true
+                        text: HK.getUdevRulesContent()
+                        wrapMode: Text.WordWrap
+                    }
+                }
+            }
+        }
+
+        onLoaded: {
+            if (status === Loader.Ready) {
+                (item as KirigamiDialogs.Dialog).open();
+            }
+        }
+    }
 
     FormCard.FormHeader {
         title: KI18n.i18nc("@title:group", "Information")
@@ -23,33 +121,25 @@ FormCard.FormCardPage {
 
         FormCard.FormButtonDelegate {
             text: KI18n.i18ncp("@action:button", "Found %1 supported device", "Found %1 supported devices", HKHeadsetControl.supportedDevices.length)
-            description: supportedDevicesOverlaySheet.title
+            description: KI18n.i18nc("@title:window", "Supported devices")
 
-            onClicked: supportedDevicesOverlaySheet.open()
+            onClicked: supportedDevicesDialogLoader.active = true
+        }
+    }
 
-            Kirigami.OverlaySheet {
-                id: supportedDevicesOverlaySheet
+    FormCard.FormHeader {
+        title: KI18n.i18nc("@title:window", "UDEV Rules")
+        visible: HK.hasUdevRules
+    }
 
-                title: KI18n.i18nc("@title:window", "Supported devices")
-                parent: root
+    FormCard.FormCard {
+        visible: HK.hasUdevRules
 
-                ListView {
-                    model: HK.sortStringLocaleAware(HKHeadsetControl.supportedDevices)
-                    implicitWidth: KirigamiPlatform.Units.gridUnit * 25
-                    spacing: KirigamiPlatform.Units.smallSpacing
+        FormCard.FormButtonDelegate {
+            text: KI18n.i18nc("@title:window", "UDEV rules")
+            description: KI18n.i18nc("@info:usagetip", "UDEV rules are required to enable proper permissions for some functions.")
 
-                    delegate: Kirigami.SelectableLabel {
-                        required property int index
-                        required property string modelData
-
-                        leftPadding: KirigamiPlatform.Units.largeSpacing
-                        rightPadding: leftPadding
-                        topPadding: index === 0 ? leftPadding : 0
-                        bottomPadding: index === ListView.view.count - 1 ? leftPadding : 0
-                        text: modelData
-                    }
-                }
-            }
+            onClicked: udevRulesDialogLoader.active = true
         }
     }
 

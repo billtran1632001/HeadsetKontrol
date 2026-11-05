@@ -20,25 +20,3 @@ add_custom_target(generate-udev
     COMMENT "Generating UDEV rules..."
     VERBATIM
 )
-
-find_package(PkgConfig QUIET)
-
-if(PKG_CONFIG_FOUND)
-    pkg_check_modules(UDEV udev QUIET)
-    pkg_get_variable(UDEV_RULES_DIR udev udevdir)
-
-    if(UDEV_RULES_DIR)
-        set(UDEV_RULES_INSTALL_DIR "${UDEV_RULES_DIR}/rules.d")
-    endif()
-endif()
-
-if(NOT UDEV_RULES_INSTALL_DIR)
-    set(UDEV_RULES_INSTALL_DIR "/lib/udev/rules.d")
-endif()
-
-set(UDEV_RULES_INSTALL_DIR "${UDEV_RULES_INSTALL_DIR}" CACHE PATH "Directory for udev rules")
-
-install(FILES
-        "${HeadsetControl_UDEV_RULES}"
-    DESTINATION "${UDEV_RULES_INSTALL_DIR}"
-)

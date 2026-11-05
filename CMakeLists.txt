@@ -14,6 +14,27 @@ include(FeatureSummary)
 
 option(USE_SOLID "Use KDE Solid to detect when a device is added or removed. This help prevents constant polling of HIDAPI." ON)
 
+option(BUILD_FLATPAK "Build for Flatpak" OFF)
+option(BUILD_APPIMAGE "Build for AppImage" OFF)
+
+if(BUILD_FLATPAK OR BUILD_APPIMAGE)
+    set(HK_CONTAINED ON)
+endif()
+
+option(USE_VENDORED_HEADSETCONTROL "Use vendored HeadsetControl library, forcing static linking" ON)
+
+if(USE_VENDORED_HEADSETCONTROL)
+    set(USE_SHARED_HEADSETCONTROL OFF)
+else()
+    option(USE_SHARED_HEADSETCONTROL "Use shared HeadsetControl library" OFF)
+endif()
+
+if(HK_CONTAINED OR NOT LINUX OR ANDROID)
+    set(INSTALL_UDEV_RULES OFF)
+else()
+    option(INSTALL_UDEV_RULES "Install the UDEV rules for HeadsetControl" ON)
+endif()
+
 set(QT6_MIN_VERSION 6.8.0)
 set(KF6_MIN_VERSION 6.24.0)
 set(KIRIGAMI_ADDONS_MIN_VERSION 1.15.0)
@@ -72,6 +93,8 @@ set_package_properties(KF6KirigamiAddons
 ecm_set_disabled_deprecation_versions(
     QT "${QT6_MIN_VERSION}"
     KF "${KF6_MIN_VERSION}"
+    KIRIGAMIAPP "${KIRIGAMI_ADDONS_MIN_VERSION}"
+    KIRIGAMIADDONSSTATEFULAPP "${KIRIGAMI_ADDONS_MIN_VERSION}"
 )
 
 ecm_find_qmlmodule(org.kde.ki18n "${KF6_MIN_VERSION}" REQUIRED)
@@ -129,10 +152,7 @@ feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES
     3rdparty/HeadsetControl/generate-udev/*.cpp
     3rdparty/HeadsetControl/generate-udev/*.hpp
-    3rdparty/HeadsetControl/module/*.cpp
-    3rdparty/HeadsetControl/module/*.cppm
     app/*.cpp
-    app/*.cppm
     app/*.hpp
 )
 kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
