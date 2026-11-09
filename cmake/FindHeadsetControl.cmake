@@ -94,6 +94,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
             usr/lib/udev/rules.d
             udev/rules.d
     )
+
+    message("Found UDEV rules: ${HeadsetControl_UDEV_RULES}")
 endif()
 
 # Handling components

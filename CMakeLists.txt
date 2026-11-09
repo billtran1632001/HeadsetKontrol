@@ -71,7 +71,7 @@ find_package(KF6 "${KF6_MIN_VERSION}" REQUIRED COMPONENTS
     Crash
     I18n
     Kirigami
-    NotifyConfig
+    NotifyConfig # TODO: Evaluate removing
 )
 
 if(USE_SOLID)
@@ -89,6 +89,14 @@ set_package_properties(KF6KirigamiAddons
         TYPE REQUIRED
         PURPOSE "Required application components and runtime dependency."
 )
+
+if(NOT USE_VENDORED_HEADSETCONTROL)
+    if(USE_SHARED_HEADSETCONTROL)
+        find_package(HeadsetControl REQUIRED COMPONENTS HeadsetControl-shared)
+    else()
+        find_package(HeadsetControl REQUIRED COMPONENTS HeadsetControl-static)
+    endif()
+endif()
 
 ecm_set_disabled_deprecation_versions(
     QT "${QT6_MIN_VERSION}"
