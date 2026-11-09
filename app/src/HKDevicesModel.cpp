@@ -89,7 +89,9 @@ void HKDevicesModel::onDevicesAdded(const QList<HKDevice *> &devices)
 
     beginInsertRows({}, m_data.size(), m_data.size() + devices.size() - 1);
 
-    m_data.append_range(devices);
+    for (auto device : devices) {
+        m_data.push_back(device);
+    }
 
     endInsertRows();
 }
