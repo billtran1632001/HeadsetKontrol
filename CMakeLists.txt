@@ -71,7 +71,6 @@ find_package(KF6 "${KF6_MIN_VERSION}" REQUIRED COMPONENTS
     Crash
     I18n
     Kirigami
-    NotifyConfig # TODO: Evaluate removing
 )
 
 if(USE_SOLID)

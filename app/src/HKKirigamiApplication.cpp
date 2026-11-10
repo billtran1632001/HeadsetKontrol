@@ -5,7 +5,6 @@
 
 #include "HKHeadsetControl.hpp"
 
-#include <KNotifyConfigWidget>
 #include <QDesktopServices>
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
@@ -50,8 +49,6 @@ QAction *HKKirigamiApplication::action(Action actionKey)
         return action("hc_refresh"_L1);
     case BugReport:
         return action(KStandardActions::name(KStandardActions::ReportBug));
-    case ConfigureNotifications:
-        return action(KStandardActions::name(KStandardActions::ReportBug));
     }
     return nullptr;
 }
@@ -66,17 +63,6 @@ void HKKirigamiApplication::setupActions()
             KStandardActions::reportBug(this, std::bind_front(&QDesktopServices::openUrl, QUrl(KAboutData::applicationData().bugAddress())), mainCollection());
 
         mainCollection()->addAction(reportBugAction->objectName(), reportBugAction);
-    }
-
-    actionName = KStandardActions::name(KStandardActions::ConfigureNotifications);
-    if (KAuthorized::authorizeAction(actionName)) {
-        auto action = KStandardActions::configureNotifications(
-            this,
-            [] {
-                KNotifyConfigWidget::configure();
-            },
-            mainCollection());
-        mainCollection()->addAction(action->objectName(), action);
     }
 
     auto *const hcInstance = HKHeadsetControl::instance();

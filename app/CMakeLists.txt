@@ -108,7 +108,6 @@ target_link_libraries(headsetkontrol PRIVATE
     KF6::Crash
     KF6::I18n
     KF6::I18nQml
-    KF6::NotifyConfig
     $<$<BOOL:${USE_SOLID}>:KF6::Solid>
 
     KirigamiApp

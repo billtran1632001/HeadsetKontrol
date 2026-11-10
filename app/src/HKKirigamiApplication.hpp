@@ -14,7 +14,6 @@ public:
         CommandBar,
         Configure,
         ConfigureKeybinding,
-        ConfigureNotifications,
         HCStart,
         HCStop,
         HCRefresh,
