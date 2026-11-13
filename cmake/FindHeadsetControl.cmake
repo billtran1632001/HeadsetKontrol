@@ -50,12 +50,10 @@ if(WIN32 OR MSVC)
         NAMES
             headsetcontrol.lib
             libheadsetcontrol.dll.a
-            headsetcontrol
     )
     find_library(HeadsetControl_SHARED_LIBRARY
         NAMES
-            headsetcontrol.dll
-            libheadsetcontrol.dll
+            headsetcontrol
     )
 else()
     find_library(HeadsetControl_SHARED_LIBRARY
