@@ -48,10 +48,9 @@ endif()
 if(WIN32 OR MSVC)
     find_library(HeadsetControl_IMPORT_LIBRARY
         NAMES
-            headsetcontrol.lib
-            libheadsetcontrol.dll.a
+            headsetcontrol
     )
-    find_library(HeadsetControl_SHARED_LIBRARY
+    find_file(HeadsetControl_SHARED_LIBRARY
         NAMES
             headsetcontrol.dll
             libheadsetcontrol.dll
