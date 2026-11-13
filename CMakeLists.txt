@@ -112,6 +112,10 @@ ecm_find_qmlmodule(org.kde.kirigamiaddons.actions "${KIRIGAMI_ADDONS_MIN_VERSION
 ecm_find_qmlmodule(org.kde.kirigamiaddons.formcard "${KIRIGAMI_ADDONS_MIN_VERSION}" REQUIRED)
 ecm_find_qmlmodule(org.kde.kirigamiaddons.settings "${KIRIGAMI_ADDONS_MIN_VERSION}" REQUIRED)
 
+if(MSVC)
+    add_compile_options(/Zc:preprocessor)
+endif()
+
 add_subdirectory(3rdparty)
 
 add_subdirectory(app)
