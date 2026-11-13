@@ -50,10 +50,15 @@ if(WIN32 OR MSVC)
         NAMES
             headsetcontrol
     )
+
+    cmake_path(GET HeadsetControl_IMPORT_LIBRARY PARENT_PATH HeadsetControl_IMPORT_LIBRARY_DIR)
+
     find_file(HeadsetControl_SHARED_LIBRARY
         NAMES
             headsetcontrol.dll
             libheadsetcontrol.dll
+        HINTS
+            "${HeadsetControl_IMPORT_LIBRARY_DIR}"
     )
 else()
     find_library(HeadsetControl_SHARED_LIBRARY
